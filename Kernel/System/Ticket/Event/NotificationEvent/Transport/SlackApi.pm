@@ -2,9 +2,9 @@
 package Kernel::System::Ticket::Event::NotificationEvent::Transport::SlackApi;
 
 
-use strict;
-use warnings;
-
+use Moose;
+use URI;
+use LWP::UserAgent;
 use Kernel::System::VariableCheck qw(:all);
 
 use base qw(Kernel::System::Ticket::Event::NotificationEvent::Transport::Base);
@@ -43,15 +43,22 @@ create a notification transport object. Do not use it directly, instead use:
 
 =cut
 
-sub new {
-    my ( $Type, %Param ) = @_;
+has 'ua' => (
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    builder => '_build_ua',
+);
 
-    # allocate new hash for object
-    my $Self = {};
-    bless( $Self, $Type );
+has 'base_url'  => (
+    is       => 'ro',
+    isa      => 'Str',
+    default  => 'https://hooks.slack.com/services/',
+);
 
-    return $Self;
+sub _build_ua {
+    return LWP::UserAgent->new( timeout => 300 );
 }
+
 
 sub SendNotification {
     my ( $Self, %Param ) = @_;
@@ -66,7 +73,12 @@ sub SendNotification {
             return;
         }
     }
-
+    my $identical_team = 'xxxxx/xxxxx';
+    $url = $self->base_url.$identical_team;
+    my $uri = URI->new($url);
+    #tempolary message
+    $message = 'data about event';
+    $self->ua->post($uri, 'payload' => $message);
     # cleanup event data
     $Self->{EventData} = undef;
 
