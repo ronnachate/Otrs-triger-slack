@@ -61,7 +61,7 @@ sub _build_ua {
 
 
 sub SendNotification {
-    my ( $Self, $TicketObject ) = @_;
+    my ( $Self, %Param ) = @_;
 
     # check needed stuff
     for my $Needed (qw(TicketID UserID Notification)) {

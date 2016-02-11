@@ -10,16 +10,18 @@ Kernel::System::Ticket::Event::NotificationEventTriggerSlack - wrapper fot notif
 =cut
 
 around 'Run' => sub {
-      my $orig = shift;
-      my $self = shift;
-
-      $result = $self->$orig(@_);
+      my ( $orig, $self, %Param ) = @_;
+      $result = $self->$orig(%Param);
       #after send base notification and email
       if( $result ) {
             #send
             my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
             my $SlackClientObject = $Kernel::OM->Get('Kernel::System::Ticket::Event::NotificationEvent::Transport::SlackApi');
-            $result = $SlackClientObject->SendNotification($TicketObject);
+            $result = $SlackClientObject->SendNotification(
+                TicketID              => $Param{Data}->{TicketID},
+                UserID                => $Param{UserID},
+                Event                 => $Param{Event},
+            );
             if( $result ) {
                 $result = 1;
             }
